@@ -23,7 +23,7 @@ export const Route = createFileRoute("/ranking")({
       },
     ],
   }),
-  component: RankingPage;
+  component: RankingPage,
 });
 
 function medal(index: number) {
