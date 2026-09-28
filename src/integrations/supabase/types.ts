@@ -14,13 +14,127 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      game_sessions: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          game_id: string
+          id: string
+          score: number
+          user_id: string
+          won: boolean
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          game_id: string
+          id?: string
+          score?: number
+          user_id: string
+          won?: boolean
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          game_id?: string
+          id?: string
+          score?: number
+          user_id?: string
+          won?: boolean
+        }
+        Relationships: []
+      }
+      game_stats: {
+        Row: {
+          best_score: number | null
+          best_time_ms: number | null
+          game_id: string
+          id: string
+          plays: number
+          total_score: number
+          updated_at: string
+          user_id: string
+          wins: number
+        }
+        Insert: {
+          best_score?: number | null
+          best_time_ms?: number | null
+          game_id: string
+          id?: string
+          plays?: number
+          total_score?: number
+          updated_at?: string
+          user_id: string
+          wins?: number
+        }
+        Update: {
+          best_score?: number | null
+          best_time_ms?: number | null
+          game_id?: string
+          id?: string
+          plays?: number
+          total_score?: number
+          updated_at?: string
+          user_id?: string
+          wins?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      submit_game_result: {
+        Args: {
+          p_game_id: string
+          p_lower_is_better?: boolean
+          p_score?: number
+          p_time_ms?: number
+          p_won?: boolean
+        }
+        Returns: {
+          best_score: number | null
+          best_time_ms: number | null
+          game_id: string
+          id: string
+          plays: number
+          total_score: number
+          updated_at: string
+          user_id: string
+          wins: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "game_stats"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never
