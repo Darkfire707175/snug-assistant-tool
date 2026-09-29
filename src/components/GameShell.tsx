@@ -27,7 +27,7 @@ export function GameShell({ game }: { game: GameDefinition }) {
     (payload: GameFinishPayload) => {
       setLastScore(payload.score);
       submit.mutate(
-        { ...payload, lowerIsBetter: game.lowerIsBetter },
+        { ...payload, lowerIsBetter: game.lowerIsBetter ?? false },
         {
           onSuccess: (res) => {
             if (res.saved) {
