@@ -14,6 +14,58 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_boosts: {
+        Row: {
+          activated_at: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_boosts_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipped: {
+        Row: {
+          item_id: string
+          slot: string
+          user_id: string
+        }
+        Insert: {
+          item_id: string
+          slot: string
+          user_id: string
+        }
+        Update: {
+          item_id?: string
+          slot?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipped_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_sessions: {
         Row: {
           created_at: string
@@ -80,6 +132,35 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory: {
+        Row: {
+          acquired_at: string
+          item_id: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          item_id: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          item_id?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -104,11 +185,178 @@ export type Database = {
         }
         Relationships: []
       }
+      room_messages: {
+        Row: {
+          body: string
+          created_at: string
+          display_name: string
+          id: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          display_name: string
+          id?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          code: string
+          created_at: string
+          game: string
+          guest_id: string | null
+          host_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          game: string
+          guest_id?: string | null
+          host_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          game?: string
+          guest_id?: string | null
+          host_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_items: {
+        Row: {
+          description: string
+          id: string
+          kind: string
+          name: string
+          price: number
+          slot: string | null
+          sort: number
+        }
+        Insert: {
+          description: string
+          id: string
+          kind: string
+          name: string
+          price: number
+          slot?: string | null
+          sort?: number
+        }
+        Update: {
+          description?: string
+          id?: string
+          kind?: string
+          name?: string
+          price?: number
+          slot?: string | null
+          sort?: number
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          coins: number
+          total_earned: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coins?: number
+          total_earned?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coins?: number
+          total_earned?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      buy_item: { Args: { p_item: string }; Returns: Json }
+      create_room: {
+        Args: { p_game: string }
+        Returns: {
+          code: string
+          created_at: string
+          game: string
+          guest_id: string | null
+          host_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rooms"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      equip_item: { Args: { p_item: string }; Returns: undefined }
+      is_room_member: {
+        Args: { _room: string; _user: string }
+        Returns: boolean
+      }
+      join_room: {
+        Args: { p_code: string }
+        Returns: {
+          code: string
+          created_at: string
+          game: string
+          guest_id: string | null
+          host_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "rooms"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      set_room_status: {
+        Args: { p_room: string; p_status: string }
+        Returns: undefined
+      }
       submit_game_result: {
         Args: {
           p_game_id: string
@@ -117,24 +365,10 @@ export type Database = {
           p_time_ms?: number
           p_won?: boolean
         }
-        Returns: {
-          best_score: number | null
-          best_time_ms: number | null
-          game_id: string
-          id: string
-          plays: number
-          total_score: number
-          updated_at: string
-          user_id: string
-          wins: number
-        }
-        SetofOptions: {
-          from: "*"
-          to: "game_stats"
-          isOneToOne: true
-          isSetofReturn: false
-        }
+        Returns: Json
       }
+      unequip_slot: { Args: { p_slot: string }; Returns: undefined }
+      use_consumable: { Args: { p_item: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

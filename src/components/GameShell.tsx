@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
 import { useSound } from "@/lib/sound";
 import { useBestScore, useSubmitResult } from "@/lib/scores";
+import { ITEM_EMOJI, useActiveBoosts, useEquipped, useShopItems } from "@/lib/shop";
 import type { GameDefinition, GameFinishPayload } from "@/games/types";
 
 export function GameShell({ game }: { game: GameDefinition }) {
@@ -17,6 +18,10 @@ export function GameShell({ game }: { game: GameDefinition }) {
   const best = useBestScore(game.id);
   const submit = useSubmitResult(game.id);
   const Game = game.Component;
+  const boosts = useActiveBoosts();
+  const equipped = useEquipped();
+  const items = useShopItems();
+  const activeBoosts = boosts.data ?? [];
 
   const finish = useCallback(
     (payload: GameFinishPayload) => {
@@ -26,7 +31,13 @@ export function GameShell({ game }: { game: GameDefinition }) {
         {
           onSuccess: (res) => {
             if (res.saved) {
-              toast.success("Resultado guardado en tu perfil");
+              if (res.finalScore !== payload.score) setLastScore(res.finalScore);
+              toast.success(`Resultado guardado · +${res.coins} monedas 🪙`, {
+                description:
+                  res.finalScore !== payload.score
+                    ? `Puntuación con bonus: ${res.finalScore}`
+                    : undefined,
+              });
             } else {
               toast.message("Récord guardado en este navegador", {
                 description: "Inicia sesión con Google para guardarlo en tu perfil y el ranking.",
@@ -70,7 +81,13 @@ export function GameShell({ game }: { game: GameDefinition }) {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
         <section className="panel min-h-[520px] p-4 sm:p-6">
-          <Game key={runId} finish={finish} play={play} />
+          <Game
+            key={`${runId}-${boosts.isFetched ? 1 : 0}-${equipped.isFetched ? 1 : 0}`}
+            finish={finish}
+            play={play}
+            boosts={activeBoosts}
+            skins={equipped.data ?? {}}
+          />
         </section>
 
         <aside className="flex flex-col gap-4">
@@ -98,6 +115,23 @@ export function GameShell({ game }: { game: GameDefinition }) {
               </p>
             )}
           </div>
+
+          {activeBoosts.length > 0 && (
+            <div className="panel p-5">
+              <h2 className="font-display text-lg">Objetos activos</h2>
+              <ul className="mt-3 space-y-1 text-sm">
+                {activeBoosts.map((id) => (
+                  <li key={id} className="flex items-center gap-2">
+                    <span>{ITEM_EMOJI[id]}</span>
+                    {items.data?.find((i) => i.id === id)?.name ?? id}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Se gastan al terminar tu próxima partida compatible.
+              </p>
+            </div>
+          )}
 
           <div className="panel p-5">
             <h2 className="flex items-center gap-2 font-display text-lg">

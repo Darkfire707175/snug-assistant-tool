@@ -106,23 +106,27 @@ export function useSubmitResult(gameId: string) {
     mutationFn: async ({ score, won = false, timeMs = null, lowerIsBetter = false }: SubmitPayload) => {
       if (!user) {
         writeLocalBest(gameId, score, lowerIsBetter);
-        return { saved: false as const };
+        return { saved: false as const, coins: 0, finalScore: score };
       }
-      const { error } = await supabase.rpc("submit_game_result", {
+      const { data, error } = await supabase.rpc("submit_game_result", {
         p_game_id: gameId,
         p_score: score,
         p_won: won,
-        p_time_ms: timeMs,
+        p_time_ms: timeMs ?? undefined,
         p_lower_is_better: lowerIsBetter,
       });
       if (error) throw error;
-      return { saved: true as const };
+      const res = (data ?? {}) as { coins_earned?: number; score?: number };
+      return {
+        saved: true as const,
+        coins: Number(res.coins_earned ?? 0),
+        finalScore: Number(res.score ?? score),
+      };
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["local-best", gameId] });
-      void qc.invalidateQueries({ queryKey: ["my-stats"] });
-      void qc.invalidateQueries({ queryKey: ["sessions"] });
-      void qc.invalidateQueries({ queryKey: ["ranking"] });
+      for (const key of ["local-best", "my-stats", "sessions", "ranking", "wallet", "boosts"]) {
+        void qc.invalidateQueries({ queryKey: [key] });
+      }
     },
   });
 }
