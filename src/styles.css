@@ -222,3 +222,28 @@
 @utility animate-pulse-glow {
   animation: gz-pulse-glow 2.2s ease-in-out infinite;
 }
+
+/* ===== Shop skins ===== */
+@keyframes gz-neon {
+  0%, 100% { box-shadow: 0 0 4px 1px oklch(0.75 0.18 240 / 80%); filter: brightness(1); }
+  50% { box-shadow: 0 0 12px 3px oklch(0.8 0.2 230 / 90%); filter: brightness(1.3); }
+}
+@keyframes gz-flame {
+  0%, 100% { background-position: 0% 50%; filter: brightness(1); }
+  50% { background-position: 100% 50%; filter: brightness(1.25); }
+}
+@keyframes gz-shine {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.skin-snake-default { background: var(--primary); }
+.skin-snake-default-head { background: var(--accent); }
+.skin-snake-neon_blue { background: oklch(0.72 0.19 240); border: 1px solid oklch(0.9 0.12 220); animation: gz-neon 1.4s ease-in-out infinite; }
+.skin-snake-fire { background: linear-gradient(90deg, oklch(0.62 0.24 30), oklch(0.78 0.19 60), oklch(0.62 0.24 30)); background-size: 200% 200%; animation: gz-flame 0.8s ease-in-out infinite; box-shadow: 0 0 8px oklch(0.7 0.22 45 / 70%); }
+.skin-snake-gold { background: linear-gradient(110deg, oklch(0.7 0.14 80) 30%, oklch(0.95 0.1 95) 50%, oklch(0.7 0.14 80) 70%); background-size: 200% 100%; animation: gz-shine 1.6s linear infinite; box-shadow: 0 0 8px oklch(0.85 0.15 90 / 70%); }
+.skin-snake-dark_purple { background: oklch(0.35 0.14 300); border: 1px solid oklch(0.55 0.2 305); }
+.skin-snake-rival { background: oklch(0.72 0.18 350); }
+.frame-icon_bronze { box-shadow: 0 0 0 3px oklch(0.6 0.12 55), 0 0 14px oklch(0.6 0.12 55 / 60%); }
+.frame-icon_silver { box-shadow: 0 0 0 3px oklch(0.85 0.01 250), 0 0 14px oklch(0.85 0.01 250 / 60%); }
+.frame-icon_gold { box-shadow: 0 0 0 3px oklch(0.84 0.16 88), 0 0 18px oklch(0.84 0.16 88 / 70%); }
+.frame-icon_diamond { box-shadow: 0 0 0 3px oklch(0.85 0.12 210), 0 0 22px oklch(0.8 0.15 210 / 80%); animation: gz-neon 2s ease-in-out infinite; }
