@@ -14,6 +14,10 @@ export type GameProps = {
   finish: (payload: GameFinishPayload) => void;
   /** Optional sound effects, respects the global sound switch. */
   play: (tone: SoundTone) => void;
+  /** Consumables active for this run (e.g. "extra_life", "slow_ball"). */
+  boosts?: string[];
+  /** Equipped skins by slot (snake, pong_paddle, pong_bg...). */
+  skins?: Record<string, string>;
 };
 
 export type GameCategory = "Arcade" | "Reflejos" | "Puzzle" | "Cerebro" | "Clásicos";
