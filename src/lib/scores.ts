@@ -112,8 +112,8 @@ export function useSubmitResult(gameId: string) {
         p_game_id: gameId,
         p_score: score,
         p_won: won,
-        p_time_ms: timeMs ?? undefined,
         p_lower_is_better: lowerIsBetter,
+        ...(timeMs != null ? { p_time_ms: timeMs } : {}),
       });
       if (error) throw error;
       const res = (data ?? {}) as { coins_earned?: number; score?: number };
