@@ -38,49 +38,33 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Find build output
-        run: |
-          echo "===== ROOT ====="
-          ls -la
-
-          echo "===== BUILD DIRECTORIES ====="
-          find . -maxdepth 5 -type d \
-            \( -name dist -o -name .output -o -name build \) \
-            -not -path './node_modules/*'
-
-          echo "===== OUTPUT FILES ====="
-          for dir in dist .output build .vercel/output; do
-            if [ -d "$dir" ]; then
-              echo "===== $dir ====="
-              find "$dir" -maxdepth 4 -type f | head -100
-            fi
-          done
-
       - name: Prepare Pages
         run: |
-          echo "===== BUSCANDO INDEX.HTML ====="
-          find . -type f -name "index.html" \
-            -not -path './node_modules/*' \
-            -not -path './.git/*'
-
-          echo "===== CARPETAS GENERADAS ====="
-          find . -maxdepth 3 -type d \
-            -not -path './node_modules*' \
-            -not -path './.git*' \
-            | sort
-
-          echo "===== ARCHIVOS DE SALIDA ====="
-          find . -maxdepth 4 -type f \
+          echo "===== BUSCANDO SALIDA ====="
+          find . -maxdepth 5 -type f \
+            \( -name "index.html" -o -name "*.js" \) \
             -not -path './node_modules/*' \
             -not -path './.git/*' \
-            | sort | tail -200
+            | head -200
 
-          exit 1
+          if [ -d ".output/public" ]; then
+            echo "Encontrado: .output/public"
+            echo "PAGES_DIR=.output/public" >> "$GITHUB_ENV"
+          elif [ -d "dist" ]; then
+            echo "Encontrado: dist"
+            echo "PAGES_DIR=dist" >> "$GITHUB_ENV"
+          elif [ -d "build" ]; then
+            echo "Encontrado: build"
+            echo "PAGES_DIR=build" >> "$GITHUB_ENV"
+          else
+            echo "No se encontró ninguna carpeta de salida."
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: ${{ env.PAGES_DIR }}
 
       - name: Deploy to GitHub Pages
         id: deployment
