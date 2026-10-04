@@ -38,52 +38,30 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Inspect output
+      - name: Check output
         run: |
-          echo "===== .output ====="
-          find .output -maxdepth 6 -type f | sort
+          echo "===== OUTPUT ====="
+          find .output -maxdepth 5 -type f | sort
 
           echo "===== HTML ====="
-          find .output -type f \
-            \( -name "*.html" -o -name "*.htm" \) \
-            -print
-
-          echo "===== PUBLIC ====="
-          ls -la .output/public
+          find .output -type f -name "*.html" -print
 
       - name: Prepare Pages
         run: |
           mkdir -p pages
 
           if [ -f ".output/public/index.html" ]; then
+            echo "Encontrado index.html"
             cp -r .output/public/* pages/
           else
-            HTML_FILE=$(find .output -type f \
-              \( -name "*.html" -o -name "*.htm" \) \
-              | head -1)
-
-            if [ -n "$HTML_FILE" ]; then
-              echo "HTML encontrado:"
-              echo "$HTML_FILE"
-
-              cp "$HTML_FILE" pages/index.html
-
-              if [ -d ".output/public/assets" ]; then
-                cp -r .output/public/assets pages/
-              fi
-            else
-              echo "ERROR: TanStack Start no ha generado ningún HTML."
-              exit 1
-            fi
+            echo "No existe .output/public/index.html"
+            exit 1
           fi
+
+          touch pages/.nojekyll
 
           echo "===== PAGES ====="
           find pages -maxdepth 3 -type f | sort
-
-          if [ ! -f "pages/index.html" ]; then
-            echo "ERROR: No se ha podido crear pages/index.html"
-            exit 1
-          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
