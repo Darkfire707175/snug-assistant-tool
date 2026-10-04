@@ -1,4 +1,3 @@
-```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -149,4 +148,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-```
