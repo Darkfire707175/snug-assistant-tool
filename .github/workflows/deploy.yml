@@ -41,25 +41,24 @@ jobs:
       - name: Check output
         run: |
           echo "===== OUTPUT ====="
-          find .output -maxdepth 5 -type f | sort
-
+          find dist -maxdepth 5 -type f | sort
           echo "===== HTML ====="
-          find .output -type f -name "*.html" -print
+          find dist -type f -name "*.html" -print
 
       - name: Prepare Pages
         run: |
           mkdir -p pages
-
-          if [ -f ".output/public/index.html" ]; then
-            echo "Encontrado index.html"
-            cp -r .output/public/* pages/
+          if [ -f "dist/client/index.html" ]; then
+            echo "Encontrado dist/client/index.html"
+            cp -r dist/client/* pages/
+          elif [ -f "dist/index.html" ]; then
+            echo "Encontrado dist/index.html"
+            cp -r dist/* pages/
           else
-            echo "No existe .output/public/index.html"
+            echo "No existe index.html en dist"
             exit 1
           fi
-
           touch pages/.nojekyll
-
           echo "===== PAGES ====="
           find pages -maxdepth 3 -type f | sort
 
