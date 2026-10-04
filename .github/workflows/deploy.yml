@@ -58,21 +58,29 @@ jobs:
 
       - name: Prepare Pages
         run: |
-          if [ -d dist ] && [ -f dist/index.html ]; then
-            echo "Using dist"
-            echo "PAGES_DIR=dist" >> "$GITHUB_ENV"
-          elif [ -d .output/public ] && [ -f .output/public/index.html ]; then
-            echo "Using .output/public"
-            echo "PAGES_DIR=.output/public" >> "$GITHUB_ENV"
-          else
-            echo "No compatible static website output found."
-            exit 1
-          fi
+          echo "===== BUSCANDO INDEX.HTML ====="
+          find . -type f -name "index.html" \
+            -not -path './node_modules/*' \
+            -not -path './.git/*'
+
+          echo "===== CARPETAS GENERADAS ====="
+          find . -maxdepth 3 -type d \
+            -not -path './node_modules*' \
+            -not -path './.git*' \
+            | sort
+
+          echo "===== ARCHIVOS DE SALIDA ====="
+          find . -maxdepth 4 -type f \
+            -not -path './node_modules/*' \
+            -not -path './.git/*' \
+            | sort | tail -200
+
+          exit 1
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.PAGES_DIR }}
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
