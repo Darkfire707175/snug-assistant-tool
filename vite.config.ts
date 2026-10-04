@@ -1,7 +1,12 @@
+```ts
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   base: "/snug-assistant-tool/",
+
+  resolve: {
+    tsconfigPaths: true,
+  },
 
   tanstackStart: {
     server: {
@@ -15,3 +20,4 @@ export default defineConfig({
     },
   },
 });
+```
