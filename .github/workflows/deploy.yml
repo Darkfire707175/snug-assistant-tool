@@ -38,28 +38,23 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Check static output
+        run: |
+          echo "===== OUTPUT ====="
+          find .output/public -maxdepth 5 -type f | sort
+
+          echo "===== INDEX FILES ====="
+          find .output/public -type f -name "index.html" -print
+
       - name: Prepare Pages
         run: |
-          echo "===== BUSCANDO SALIDA ====="
-          find . -maxdepth 5 -type f \
-            \( -name "index.html" -o -name "*.js" \) \
-            -not -path './node_modules/*' \
-            -not -path './.git/*' \
-            | head -200
-
-          if [ -d ".output/public" ]; then
-            echo "Encontrado: .output/public"
-            echo "PAGES_DIR=.output/public" >> "$GITHUB_ENV"
-          elif [ -d "dist" ]; then
-            echo "Encontrado: dist"
-            echo "PAGES_DIR=dist" >> "$GITHUB_ENV"
-          elif [ -d "build" ]; then
-            echo "Encontrado: build"
-            echo "PAGES_DIR=build" >> "$GITHUB_ENV"
-          else
-            echo "No se encontró ninguna carpeta de salida."
+          if [ ! -f ".output/public/index.html" ]; then
+            echo "ERROR: No se encontró .output/public/index.html"
             exit 1
           fi
+
+          echo "Página principal encontrada correctamente."
+          echo "PAGES_DIR=.output/public" >> "$GITHUB_ENV"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
