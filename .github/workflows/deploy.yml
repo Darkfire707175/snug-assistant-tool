@@ -1,3 +1,4 @@
+
 name: Deploy to GitHub Pages
 
 on:
@@ -30,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
@@ -38,17 +39,42 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Check dist
+      - name: Find build output
         run: |
-          echo "===== CONTENIDO DE DIST ====="
-          ls -la dist
-          echo "===== TAMAÑO DE DIST ====="
-          du -sh dist
+          echo "===== ROOT ====="
+          ls -la
+
+          echo "===== BUILD DIRECTORIES ====="
+          find . -maxdepth 5 -type d \
+            \( -name dist -o -name .output -o -name build \) \
+            -not -path './node_modules/*'
+
+          echo "===== OUTPUT FILES ====="
+          for dir in dist .output build .vercel/output; do
+            if [ -d "$dir" ]; then
+              echo "===== $dir ====="
+              find "$dir" -maxdepth 4 -type f | head -100
+            fi
+          done
+
+      - name: Prepare Pages
+        run: |
+          if [ -d dist ] && [ -f dist/index.html ]; then
+            echo "Using dist"
+            echo "PAGES_DIR=dist" >> "$GITHUB_ENV"
+          elif [ -d .output/public ] && [ -f .output/public/index.html ]; then
+            echo "Using .output/public"
+            echo "PAGES_DIR=.output/public" >> "$GITHUB_ENV"
+          else
+            echo "No compatible static website output found."
+            echo "TanStack Start may require a static build configuration."
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ${{ env.PAGES_DIR }}
 
       - name: Deploy to GitHub Pages
         id: deployment
