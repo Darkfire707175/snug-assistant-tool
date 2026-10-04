@@ -38,28 +38,57 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Check static output
+      - name: Inspect output
         run: |
-          echo "===== OUTPUT ====="
-          find .output/public -maxdepth 5 -type f | sort
+          echo "===== .output ====="
+          find .output -maxdepth 6 -type f | sort
 
-          echo "===== INDEX FILES ====="
-          find .output/public -type f -name "index.html" -print
+          echo "===== HTML ====="
+          find .output -type f \
+            \( -name "*.html" -o -name "*.htm" \) \
+            -print
+
+          echo "===== PUBLIC ====="
+          ls -la .output/public
 
       - name: Prepare Pages
         run: |
-          if [ ! -f ".output/public/index.html" ]; then
-            echo "ERROR: No se encontró .output/public/index.html"
-            exit 1
+          mkdir -p pages
+
+          if [ -f ".output/public/index.html" ]; then
+            cp -r .output/public/* pages/
+          else
+            HTML_FILE=$(find .output -type f \
+              \( -name "*.html" -o -name "*.htm" \) \
+              | head -1)
+
+            if [ -n "$HTML_FILE" ]; then
+              echo "HTML encontrado:"
+              echo "$HTML_FILE"
+
+              cp "$HTML_FILE" pages/index.html
+
+              if [ -d ".output/public/assets" ]; then
+                cp -r .output/public/assets pages/
+              fi
+            else
+              echo "ERROR: TanStack Start no ha generado ningún HTML."
+              exit 1
+            fi
           fi
 
-          echo "Página principal encontrada correctamente."
-          echo "PAGES_DIR=.output/public" >> "$GITHUB_ENV"
+          echo "===== PAGES ====="
+          find pages -maxdepth 3 -type f | sort
+
+          if [ ! -f "pages/index.html" ]; then
+            echo "ERROR: No se ha podido crear pages/index.html"
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.PAGES_DIR }}
+          path: pages
 
       - name: Deploy to GitHub Pages
         id: deployment
